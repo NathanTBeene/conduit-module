@@ -1,5 +1,11 @@
---- conduit/init.lua
---- Main entry point for Conduit debug console
+--- Real-time debug console for LÖVE2D
+--- A web-based debug console that provides logging, commands,
+--- and real-time variable watching for LÖVE2D games.
+---
+--- @module conduit
+--- @author aten.dev
+--- @license MIT
+--- @copyright 2025
 
 local Conduit = {}
 
@@ -24,7 +30,7 @@ local global_command_templates = {}
 
 --- Initialize Conduit
 --- Call this once at the start of your game
---- @param options table Optional:   {port = 8080, timestamps = true, max_logs = 1000}
+--- @param options table Optional: {port = 8080, timestamps = true, max_logs = 1000}
 function Conduit:init(options)
   if is_initialized then
     print("[Conduit] Already initialized")
@@ -58,6 +64,7 @@ function Conduit:update()
 end
 
 --- Shutdown Conduit
+--- Call this to cleanly stop the server and release resources
 function Conduit:shutdown()
   if server then
     server:stop()
@@ -76,7 +83,7 @@ end
 function Conduit:console(name)
   -- Auto-initialize if not done
   if not is_initialized then
-    self:init()
+    self:init({})
   end
 
   -- Validate name
@@ -117,6 +124,7 @@ end
 
 --- Define built-in global commands
 --- These will be copied into every console when it's created
+--- @private
 function Conduit:_define_global_commands()
 
   -- HELP:   Show all available commands

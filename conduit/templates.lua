@@ -1,5 +1,7 @@
---- conduit/templates. lua
---- HTML templates for rendering console pages
+--- Conduit - Templates Module
+--- HTML templates for rendering console pages and index
+--- @class Templates
+--- @type Templates
 
 local Templates = {}
 
@@ -617,6 +619,10 @@ local INDEX_JS = [[
 -- RENDER FUNCTIONS
 -----------------------------------------------------------
 
+--- Renders the index page
+--- @param consoles table A table of consoles
+--- @param config table Configuration options
+--- @return string The rendered HTML
 function Templates.render_index(consoles, config)
   -- Build console cards
   local console_cards = {}
@@ -707,6 +713,10 @@ function Templates.render_index(consoles, config)
     SHARED_CSS, console_cards_html, console_count, total_logs, total_errors, total_warnings, js)
 end
 
+--- Renders a console page
+--- @param console Console The console instance
+--- @param config table Configuration options
+--- @return string The rendered HTML
 function Templates.render_console(console, config)
   local logs_html = Templates.render_logs_buffer(console)
 
@@ -785,6 +795,9 @@ function Templates.render_console(console, config)
   ]], console.name, SHARED_CSS, console.name, logs_html, console.total_logs, js)
 end
 
+--- Renders the logs buffer for a console
+--- @param console Console The console instance
+--- @return string The rendered HTML for the logs buffer
 function Templates.render_logs_buffer(console)
   local logs = console:get_logs()
 

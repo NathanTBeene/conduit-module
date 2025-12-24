@@ -1,5 +1,7 @@
---- conduit/server.lua
---- HTTP server for serving console pages and handling API requests
+--- Conduit - Server Module
+--- A server for handling HTTP connections and API requests
+--- @class Server
+--- @type Server
 
 local socket = require("socket")
 

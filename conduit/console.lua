@@ -1,6 +1,7 @@
+--- Conduit - Console Module
+--- A console for logging, commands, and watchables
 --- @class Console
---- conduit/console.lua
---- Individual console instance
+--- @type Console
 
 local Console = {}
 Console.__index = Console
@@ -20,7 +21,10 @@ local LOG_LEVELS = {
 -- CONSTRUCTOR
 -----------------------------------------------------------
 
-
+--- Creates a new Console instance
+--- @param name string The name of the console
+--- @param config table Configuration options
+--- @return Console
 function Console:new(name, config)
   local self = setmetatable({}, Console)
 
@@ -45,7 +49,10 @@ end
 -- LOGGING
 -----------------------------------------------------------
 
-
+--- Internal method to add a log entry
+--- @param level table The log level
+--- @param message string The log message
+--- @private
 function Console:_add_log(level, message)
   -- Convert message to string if needed
   if type(message) ~= "string" then
@@ -74,37 +81,45 @@ function Console:_add_log(level, message)
   end
 end
 
-
+--- Logs an informational message
+--- @param message string The log message
 function Console:log(message)
   self:_add_log(LOG_LEVELS.INFO, message)
 end
 
-
+--- Logs a success message
+--- @param message string The log message
 function Console:success(message)
   self:_add_log(LOG_LEVELS.SUCCESS, message)
 end
 
 
+--- Logs a warning message
+--- @param message string The log message
 function Console:warn(message)
   self:_add_log(LOG_LEVELS.WARNING, message)
 end
 
 
+--- Logs an error message
+--- @param message string The log message
 function Console:error(message)
   self:_add_log(LOG_LEVELS.ERROR, message)
 end
 
 
+--- Logs a debug message
+--- @param message string The log message
 function Console:debug(message)
   self:_add_log(LOG_LEVELS.DEBUG, message)
 end
 
-
+--- Clears all logs from the console
 function Console:clear()
   self.logs = {}
 end
 
-
+--- Retrieves all logs from the console
 function Console:get_logs()
   return self.logs
 end
@@ -113,7 +128,10 @@ end
 -- COMMANDS
 -----------------------------------------------------------
 
-
+--- Registers a new command
+--- @param name string The command name
+--- @param callback function The function to execute
+--- @param description string The command description
 function Console:register_command(name, callback, description)
   if not name or type(name) ~= "string" then
     error("[Conduit] Command name must be a string")
@@ -129,7 +147,10 @@ function Console:register_command(name, callback, description)
   }
 end
 
-
+--- Executes a command
+--- @param name string The command name
+--- @param args table The command arguments
+--- @return table Result of command execution
 function Console:execute_command(name, args)
   -- Check if command exists
   if not self.commands[name] then
@@ -161,7 +182,8 @@ function Console:execute_command(name, args)
   }
 end
 
-
+--- Counts the number of registered commands
+--- @return number The number of commands
 function Console:count_commands()
   local count = 0
   for _ in pairs(self.commands) do
@@ -174,6 +196,11 @@ end
 -- WATCHABLES
 -----------------------------------------------------------
 
+--- Registers a new watchable
+--- @param name string The watchable name
+--- @param getter function The function to retrieve the watchable value
+--- @param group string The group name (optional)
+--- @param order number The order within the group (optional)
 function Console:watch(name, getter, group, order)
   -- Validate
   if not name or type(name) ~= "string" then
@@ -204,6 +231,9 @@ function Console:watch(name, getter, group, order)
   }
 end
 
+--- Defines a watchable group
+--- @param name string The group name
+--- @param order number The group order
 function Console:group(name, order)
   if not name or type(name) ~= "string" then
     error("[Conduit] Watchable group name must be a string")
@@ -218,7 +248,8 @@ function Console:unwatch(name)
   self._recalculate_group_orders()
 end
 
--- Remove all watchables in a group
+--- Remove all watchables in a group
+--- @param group string The group name
 function Console:unwatch_group(group)
   for name, watchable in pairs(self.watchables) do
     if watchable.group == group then
@@ -227,6 +258,8 @@ function Console:unwatch_group(group)
   end
 end
 
+--- Retrieves all watchables organized by group
+--- @return table A table of watchable groups and their items
 function Console:get_watchables()
   -- Build Groups
   local groups = {}
@@ -277,6 +310,8 @@ end
 -- STATISTICS
 -----------------------------------------------------------
 
+--- Retrieves console statistics
+--- @return table A table containing console statistics
 function Console:get_stats()
   return {
     name = self.name,
