@@ -7,12 +7,12 @@ Console.__index = Console
 
 -- Log level definitions
 local LOG_LEVELS = {
-    INFO = { name = "info", icon = "▸", color = "#c9d1d9" },
-    SUCCESS = { name = "success", icon = "✓", color = "#3fb950" },
-    WARNING = { name = "warning", icon = "⚠", color = "#d29922" },
-    ERROR = { name = "error", icon = "✖", color = "#f85149" },
-    DEBUG = { name = "debug", icon = "○", color = "#8b949e" },
-    CUSTOM = { name = "custom", icon = "▸", color = "#c9d1d9" }
+  INFO = { name = "info", icon = "▸", color = "#c9d1d9" },
+  SUCCESS = { name = "success", icon = "✓", color = "#3fb950" },
+  WARNING = { name = "warning", icon = "⚠", color = "#d29922" },
+  ERROR = { name = "error", icon = "✖", color = "#f85149" },
+  DEBUG = { name = "debug", icon = "○", color = "#8b949e" },
+  CUSTOM = { name = "custom", icon = "▸", color = "#c9d1d9" }
 }
 
 
@@ -28,8 +28,8 @@ function Console:new(name, config)
   self.max_logs = config.max_logs or 1000
   self.timestamps = config.timestamps or false
 
-  self.logs = {}    -- Array of logs
-  self.total_logs = 0  -- Total logs ever added
+  self.logs = {}      -- Array of logs
+  self.total_logs = 0 -- Total logs ever added
   self.commands = {}  -- Console-specific commands
 
   return self
@@ -111,16 +111,16 @@ end
 
 function Console:register_command(name, callback, description)
   if not name or type(name) ~= "string" then
-    error("[Conduit] Name must be a string.")
+    error("[Conduit] Command name must be a string")
   end
 
   if not callback or type(callback) ~= "function" then
-    error("[Conduit] Callback must be a function.")
+    error("[Conduit] Command callback must be a function")
   end
 
   self.commands[name] = {
     callback = callback,
-    description = description or "No description provided."
+    description = description or "No description"
   }
 end
 

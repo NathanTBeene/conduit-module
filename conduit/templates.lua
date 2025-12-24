@@ -7,7 +7,7 @@ local Templates = {}
 -- SHARED CSS
 -----------------------------------------------------------
 
-local SHARED_CSS =  [[/*css*/
+local SHARED_CSS = [[
 <style>
     * {
         margin: 0;
@@ -36,6 +36,7 @@ local SHARED_CSS =  [[/*css*/
         display: flex;
         align-items: center;
         gap: 16px;
+        padding: 8px;
     }
 
     .logo {
@@ -47,7 +48,7 @@ local SHARED_CSS =  [[/*css*/
         transition: color 0.2s;
     }
 
-    . logo:hover {
+    .logo:hover {
         color:  #79c0ff;
     }
 
@@ -57,17 +58,6 @@ local SHARED_CSS =  [[/*css*/
         padding-left: 16px;
         border-left: 1px solid #30363d;
         text-transform: capitalize;
-    }
-
-    .back-link {
-        color: #58a6ff;
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.2s;
-    }
-
-    . back-link:hover {
-        color: #79c0ff;
     }
 
     /* Toolbar */
@@ -91,7 +81,7 @@ local SHARED_CSS =  [[/*css*/
         transition: background-color 0.2s, border-color 0.2s;
     }
 
-    . btn:hover {
+    .btn:hover {
         background-color: #30363d;
         border-color: #58a6ff;
     }
@@ -276,13 +266,13 @@ local SHARED_CSS =  [[/*css*/
         overflow: hidden;
     }
 </style>
-/*!css*/]]
+]]
 
 -----------------------------------------------------------
 -- CONSOLE PAGE JAVASCRIPT
 -----------------------------------------------------------
 
-local CONSOLE_JS = [[<!--html-->
+local CONSOLE_JS = [[
 <script>
     const logContainer = document.getElementById('logContainer');
     const commandInput = document.getElementById('commandInput');
@@ -454,3 +444,187 @@ local INDEX_JS = [[
     setInterval(updateIndex, 500);
 </script>
 ]]
+
+-----------------------------------------------------------
+-- RENDER FUNCTIONS
+-----------------------------------------------------------
+
+function Templates.render_index(consoles, config)
+  -- Build console cards
+  local console_cards = {}
+  for name, console in pairs(consoles) do
+    local stats = console: get_stats()
+    table.insert(console_cards, string.format([[
+      <a href="/console/%s" class="console-card">
+        <div class="console-card-title">%s</div>
+        <div class="console-card-info">%d logs</div>
+      </a>
+    ]], name, name, stats.log_count))
+  end
+
+  local console_cards_html = table.concat(console_cards, "\n")
+  if console_cards_html == "" then
+    console_cards_html = '<p style="color: #8b949e; padding: 40px; text-align: center;">No consoles created yet.</p>'
+  end
+
+  -- Calculate Stats
+  local total_logs = 0
+  local total_errors = 0
+  local total_warnings = 0
+  local console_count = 0
+
+  for name, console in pairs(consoles) do
+    console_count = console_count + 1
+    total_logs = total_logs + console.total_logs
+
+    for _, log in ipairs(console:get_logs()) do
+      if log.level == "error" then
+        total_errors = total_errors + 1
+      elseif log.level == "warning" then
+        total_warnings = total_warnings + 1
+      end
+    end
+  end
+
+  -- Build Page
+  return string.format([[
+    <! DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Conduit - Console Index</title>
+      %s
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-left">
+                <a href="/" class="logo">CONDUIT</a>
+            </div>
+        </div>
+
+        <div class="index-container">
+            <h2 class="section-title">Active Consoles</h2>
+            <div class="console-grid" id="consoleGrid">
+                %s
+            </div>
+
+            <h2 class="section-title">Statistics</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="statConsoles">%d</div>
+                    <div class="stat-label">Consoles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statLogs">%d</div>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statErrors">%d</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statWarnings">%d</div>
+                    <div class="stat-label">Warnings</div>
+                </div>
+            </div>
+        </div>
+
+        %s
+    </body>
+    </html>
+    ]],
+    SHARED_CSS, console_cards_html, console_count, total_logs, total_errors, total_warnings, INDEX_JS)
+end
+
+function Templates.render_console(console, config)
+  local logs_html = Templates.render_logs_buffer(console)
+
+  -- Replace template variables in JavaScript
+  local js = CONSOLE_JS:gsub("{{CONSOLE_NAME}}", console.name)
+
+  return string.format([[
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Conduit - %s</title>
+        %s
+    </head>
+    <body class="console-page">
+        <div class="header">
+            <div class="header-left">
+                <a href="/" class="logo">CONDUIT</a>
+                <div class="console-name">%s</div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn" id="clearBtn">Clear</button>
+        </div>
+
+        <div class="log-container" id="logContainer">
+            %s
+        </div>
+
+        <div class="command-input-container">
+            <div class="command-input-wrapper">
+                <span class="command-prompt">&gt;</span>
+                <input type="text" class="command-input" id="commandInput"
+                      placeholder="Type a command...  (try 'help')" autocomplete="off">
+            </div>
+            <div class="command-help" id="commandHelp">
+                Press Enter to execute • Type "help" for commands
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>Total Logs: <strong>%d</strong></span>
+            <span id="statusIndicator">Connected • Live</span>
+        </div>
+
+        %s
+    </body>
+    </html>
+  ]], console.name, SHARED_CSS, console.name, logs_html, console.total_logs, js)
+end
+
+function Templates.render_logs_buffer(console)
+  local logs = console:get_logs()
+
+  if #logs == 0 then
+    return [[
+      <div style="text-align: center; padding: 40px; color: #8b949e;">
+      <p>No logs yet.</p>
+      <p style="font-size: 12px; margin-top: 8px;">
+        Start logging with <code>console: log("message")</code>
+      </p>
+      </div>
+    ]]
+  end
+
+  local log_entries = {}
+  for _, log in ipairs(logs) do
+    local timestamp_html = ""
+    if log.timestamp then
+      timestamp_html = string.format('<span class="log-timestamp">[%s]</span> ', log.timestamp)
+    end
+
+    -- Convert newlines into <br> for HTML display
+    local message = log.message:gsub("\n", "<br>")
+
+    local entry = string.format([[
+      <div class="log-entry" style="color: %s;">
+        <span class="log-icon">%s</span>
+        <span class="log-message">%s%s</span>
+      </div>
+    ]], log.color, log.icon, timestamp_html, message)
+
+    table.insert(log_entries, entry)
+  end
+
+  return table.concat(log_entries, "\n")
+end
+
+return Templates
