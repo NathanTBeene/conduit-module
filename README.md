@@ -3,9 +3,9 @@
 A real-time debug console for LÖVE2D games that runs in your web browser.
 
 [![Version](https://img.shields.io/github/v/release/NathanTBeene/conduit-module?label=version)](https://github.com/NathanTBeene/conduit-module/releases)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![LÖVE](https://img.shields.io/badge/LÖVE-11.0+-pink.svg)
-![Lua](https://img.shields.io/badge/Lua-5.1+-blue.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NathanTBeene/conduit-module?tab=MIT-1-ov-file)
+[![LÖVE](https://img.shields.io/badge/LÖVE-11.0+-pink.svg)](https://love2d.org/)
+[![Lua](https://img.shields.io/badge/Lua-5.1+-blue.svg)](https://www.lua.org/source/5.1/)
 
 ---
 
