@@ -2,7 +2,7 @@
 
 A real-time debug console for LÖVE2D games that runs in your web browser.
 
-[![Version](https://img.shields.io/github/v/release/NathanTBeene/multi-console?label=version)](https://github.com/NathanTBeene/multi-console/releases)
+[![Version](https://img.shields.io/github/v/release/NathanTBeene/conduit-module?label=version)](https://github.com/NathanTBeene/conduit-module/releases)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![LÖVE](https://img.shields.io/badge/LÖVE-11.0+-pink.svg)
 ![Lua](https://img.shields.io/badge/Lua-5.1+-blue.svg)
@@ -24,7 +24,7 @@ A real-time debug console for LÖVE2D games that runs in your web browser.
 
 ### Option 1: Copy Files
 
-1. Download the latest [release]().
+1. Download the latest [release](https://github.com/NathanTBeene/conduit-module/releases).
 2. Copy the `conduit/` folder into your LÖVE project
 3. Require it in your `main.lua`:
 
