@@ -2,10 +2,10 @@
 --- A web-based debug console that provides logging, commands,
 --- and real-time variable watching for LÖVE2D games.
 ---
---- @module conduit
---- @author aten.dev
---- @license MIT
---- @copyright 2025
+-- @module conduit
+-- @author aten.dev
+-- @license MIT
+-- @copyright 2025
 
 local Conduit = {}
 

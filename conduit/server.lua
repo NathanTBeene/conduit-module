@@ -489,7 +489,7 @@ end
 
 --- Simple JSON decoder
 --- @param str string JSON string
---- @return table Decoded table
+--- @return table | nil Decoded table or nil if invalid
 function Server:_decode_json(str)
   -- Remove whitespace
   str = string.gsub(str, "^%s+", "")
