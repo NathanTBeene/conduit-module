@@ -7,6 +7,7 @@ local Templates = {}
 -- SHARED CSS
 -----------------------------------------------------------
 
+
 local SHARED_CSS = [[
 <style>
     * {
@@ -68,6 +69,24 @@ local SHARED_CSS = [[
         display: flex;
         gap: 12px;
         align-items:  center;
+    }
+
+    .search-container {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex: 1;
+    }
+
+    .search-container input,
+    .search-container select {
+        background-color: #0d1117;
+        color: #c9d1d9;
+        border: 1px solid #30363d;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s;
     }
 
     .btn {
@@ -265,6 +284,77 @@ local SHARED_CSS = [[
         height: 100vh;
         overflow: hidden;
     }
+
+    .console-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .watchables-panel {
+        width:  350px;
+        background-color:  #0d1117;
+        border-left: 1px solid #30363d;
+        padding: 16px;
+        overflow-y:  auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .watchables-header {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #30363d;
+    }
+
+    .watchable-group {
+        background-color: #161b22;
+        border:  1px solid #30363d;
+        border-radius: 6px;
+        padding: 12px;
+    }
+
+    .watchable-group-title {
+        font-size: 12px;
+        font-weight: 600;
+        color:  #58a6ff;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.3px;
+    }
+
+    .watchable-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 8px;
+        margin-bottom:  4px;
+        background-color: #0d1117;
+        border-radius: 4px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+    }
+
+    .watchable-item: last-child {
+        margin-bottom: 0;
+    }
+
+    . watchable-name {
+        color: #8b949e;
+        flex:  1;
+    }
+
+    .watchable-value {
+        color: #3fb950;
+        font-weight:  600;
+        text-align: right;
+        margin-left: 12px;
+    }
 </style>
 ]]
 
@@ -279,8 +369,12 @@ local CONSOLE_JS = [[
     const commandHelp = document.getElementById('commandHelp');
     const clearBtn = document.getElementById('clearBtn');
     const statusIndicator = document.getElementById('statusIndicator');
+    const searchInput = document.getElementById('searchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const watchablesContainer = document.getElementById('watchablesContainer');
 
     let contentCache = '';
+    let watchablesCache = '';
     let isAtBottom = true;
     let commandHistory = [];
     let historyIndex = -1;
@@ -292,6 +386,36 @@ local CONSOLE_JS = [[
     }
 
     logContainer.addEventListener('scroll', checkIfAtBottom);
+
+    // Search Fliter
+    function filterLogs()
+    {
+      const search = searchInput.value.toLowerCase();
+      const type = searchDropdown.value;
+      const entries = logContainer.querySelectorAll('.log-entry');
+
+      entries.forEach(entry => {
+        const logType = entry.getAttribute('data-type');
+        const matchesType = (type === 'all' || logType === type);
+
+        // Get log-message element
+        const messageElement = entry.querySelector('.log-message');
+        let messageText = messageElement.textContent || messageElement.innerText;
+
+        // Remove timestamp
+        const timestampElem = messageElement.querySelector('.log-timestamp');
+        if (timestampElem) {
+          messageText = messageText.replace(timestampElem.textContent, '').trim();
+        }
+
+        const matchesSearch = messageText.toLowerCase().includes(search);
+
+        entry.style.display = (matchesType && matchesSearch) ? '' : 'none';
+      });
+    }
+
+    searchInput.addEventListener('input', filterLogs);
+    searchDropdown.addEventListener('change', filterLogs);
 
     // Fetch and update logs via AJAX
     function refreshLogs() {
@@ -308,6 +432,8 @@ local CONSOLE_JS = [[
                     if (wasAtBottom) {
                         logContainer.scrollTop = logContainer.scrollHeight;
                     }
+
+                    filterLogs();
                 }
                 statusIndicator.innerHTML = 'Connected • Live';
             })
@@ -379,6 +505,47 @@ local CONSOLE_JS = [[
         }
     });
 
+    // Fetch and update watchables
+    function refreshWatchables() {
+        fetch('/api/console/{{CONSOLE_NAME}}/watchables')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '';
+
+                    if (data.groups. length === 0) {
+                        html = '<p style="color: #8b949e; font-size: 12px; text-align: center;">No watchables yet.</p>';
+                    } else {
+                        data.groups. forEach(group => {
+                            html += `
+                                <div class="watchable-group">
+                                    <div class="watchable-group-title">${group.name}</div>
+                            `;
+
+                            group.items.forEach(item => {
+                                html += `
+                                    <div class="watchable-item">
+                                        <span class="watchable-name">${item.name}</span>
+                                        <span class="watchable-value">${item.value}</span>
+                                    </div>
+                                `;
+                            });
+
+                            html += '</div>';
+                        });
+                    }
+
+                    if (html !== watchablesCache) {
+                        watchablesContainer.innerHTML = html;
+                        watchablesCache = html;
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Failed to fetch watchables:', err);
+            });
+    }
+
     // Clear button
     clearBtn.addEventListener('click', () => {
         executeCommand('clear');
@@ -389,7 +556,8 @@ local CONSOLE_JS = [[
     isAtBottom = true;
 
     // Poll every 200ms for low latency
-    setInterval(refreshLogs, 200);
+    setInterval(refreshLogs, {{REFRESH_INTERVAL}});
+    setInterval(refreshWatchables, {{REFRESH_INTERVAL}});
 </script>
 ]]
 
@@ -440,8 +608,8 @@ local INDEX_JS = [[
             .catch(err => {});
     }
 
-    // Update every 500ms
-    setInterval(updateIndex, 500);
+    // Update every REFRESH_INTERVAL ms
+    setInterval(updateIndex, {{REFRESH_INTERVAL}});
 </script>
 ]]
 
@@ -485,6 +653,8 @@ function Templates.render_index(consoles, config)
       end
     end
   end
+
+  local js = INDEX_JS:gsub("{{REFRESH_INTERVAL}}", tostring(config.refresh_interval or 500))
 
   -- Build Page
   return string.format([[
@@ -534,7 +704,7 @@ function Templates.render_index(consoles, config)
     </body>
     </html>
     ]],
-    SHARED_CSS, console_cards_html, console_count, total_logs, total_errors, total_warnings, INDEX_JS)
+    SHARED_CSS, console_cards_html, console_count, total_logs, total_errors, total_warnings, js)
 end
 
 function Templates.render_console(console, config)
@@ -542,6 +712,7 @@ function Templates.render_console(console, config)
 
   -- Replace template variables in JavaScript
   local js = CONSOLE_JS:gsub("{{CONSOLE_NAME}}", console.name)
+                      :gsub("{{REFRESH_INTERVAL}}", tostring(config.refresh_interval or 200))
 
   return string.format([[
     <!DOCTYPE html>
@@ -561,11 +732,35 @@ function Templates.render_console(console, config)
         </div>
 
         <div class="toolbar">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search...">
+                <select name="search-dropdown" id="searchDropdown">
+                      <option value="all" style="color: #c9d1d9;">All</option>
+                      <option value="info" style="color: #c9d1d9;">▸ info</option>
+                      <option value="success" style="color: #3fb950;">✓ success</option>
+                      <option value="warning" style="color: #d29922;">⚠ warning</option>
+                      <option value="error" style="color: #f85149;">✖ error</option>
+                      <option value="debug" style="color: #8b949e;">○ debug</option>
+                      <option value="custom" style="color: #c9d1d9;">▸ custom</option>
+
+                </select>
+            </div>
             <button class="btn" id="clearBtn">Clear</button>
         </div>
 
-        <div class="log-container" id="logContainer">
-            %s
+        <div class="console-content">
+          <div class="log-container" id="logContainer">
+              %s
+          </div>
+
+          <div class="watchables-panel">
+              <div class="watchables-header">
+                  Watchables
+              </div>
+              <div id="watchablesContainer">
+                  <!-- Watchables will be dynamically loaded here -->
+              </div>
+          </div>
         </div>
 
         <div class="command-input-container">
@@ -615,11 +810,11 @@ function Templates.render_logs_buffer(console)
     local message = log.message:gsub("\n", "<br>")
 
     local entry = string.format([[
-      <div class="log-entry" style="color: %s;">
+      <div class="log-entry" style="color: %s;" data-type="%s">
         <span class="log-icon">%s</span>
         <span class="log-message">%s%s</span>
       </div>
-    ]], log.color, log.icon, timestamp_html, message)
+    ]], log.color, log.level or "custom", log.icon, timestamp_html, message)
 
     table.insert(log_entries, entry)
   end

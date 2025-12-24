@@ -8,7 +8,9 @@ local consoles = {}           -- Stores all console instances {name -> console_o
 local config = {              -- Default configuration
   port = 8080,
   timestamps = true,
-  max_logs = 1000
+  max_logs = 1000,
+  max_watchables = 100,
+  refresh_interval = 200      -- ms between client updates
 }
 local server = nil            -- Will hold the HTTP server instance
 local is_initialized = false  -- Have we called init() yet?
@@ -174,7 +176,7 @@ end
 --- @param description string Command description
 function Conduit:register_global_command(name, callback, description)
   if not is_initialized then
-    self:init()
+    self:init({})
   end
 
   -- Add to templates

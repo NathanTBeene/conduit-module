@@ -32,6 +32,11 @@ function Console:new(name, config)
   self.total_logs = 0 -- Total logs ever added
   self.commands = {}  -- Console-specific commands
 
+  -- Watchables
+  self.watchables = {}
+  self.watchable_groups = {}
+  self.max_watchables = config.max_watchables or 100
+
   return self
 end
 
@@ -163,6 +168,109 @@ function Console:count_commands()
     count = count + 1
   end
   return count
+end
+
+-----------------------------------------------------------
+-- WATCHABLES
+-----------------------------------------------------------
+
+function Console:watch(name, getter, group, order)
+  -- Validate
+  if not name or type(name) ~= "string" then
+    error("[Conduit] Watchable name must be a string")
+    self:warn("Invalid name for watchable. Must be a string.")
+  end
+
+  if not getter or type(getter) ~= "function" then
+    error("[Conduit] Watchable getter must be a function")
+    self:warn("Invalid getter for watchable '" .. name .. "'. Must be a function.")
+  end
+
+  -- Check max watchables
+  if #self.watchables >= self.max_watchables then
+    error("[Conduit] Maximum number of watchables reached")
+    self:warn("Maximum number of watchables reached. Cannot add '" .. name .. "'.")
+  end
+
+  -- Default group and order
+  group = group or "Other"
+  order = order or 999
+
+  -- Store watchable
+  self.watchables[name] = {
+    getter = getter,
+    group = group,
+    order = order
+  }
+end
+
+function Console:group(name, order)
+  if not name or type(name) ~= "string" then
+    error("[Conduit] Watchable group name must be a string")
+  end
+
+  order = order or 999
+  self.watchable_groups[name] = order
+end
+
+function Console:unwatch(name)
+  self.watchables[name] = nil
+  self._recalculate_group_orders()
+end
+
+-- Remove all watchables in a group
+function Console:unwatch_group(group)
+  for name, watchable in pairs(self.watchables) do
+    if watchable.group == group then
+      self.watchables[name] = nil
+    end
+  end
+end
+
+function Console:get_watchables()
+  -- Build Groups
+  local groups = {}
+  local group_map = {}
+
+  for name, watchable in pairs(self.watchables) do
+    local group_name = watchable.group
+
+    -- Create group if doesn't exist
+    if not group_map[group_name] then
+      local group_data = {
+        name = group_name,
+        order = self.watchable_groups[group_name] or 999,
+        items = {}
+      }
+      table.insert(groups, group_data)
+      group_map[group_name] = group_data
+    end
+
+    -- Evaluate getter
+    local success, result = pcall(watchable.getter)
+    local value = success and tostring(result) or ("Error: " .. tostring(result))
+
+    -- Add to group
+    table.insert(group_map[group_name].items, {
+      name = name,
+      value = value,
+      order = watchable.order
+    })
+  end
+
+  -- Sort groups by order
+  table.sort(groups, function(a, b)
+    return a.order < b.order
+  end)
+
+  -- Sort items within each group by order
+  for _, group in ipairs(groups) do
+    table.sort(group.items, function(a, b)
+      return a.order < b.order
+    end)
+  end
+
+  return groups
 end
 
 -----------------------------------------------------------

@@ -227,6 +227,10 @@ function Server:_handle_request(client, request)
     local console_name = string.match(base_path, "^/api/console/([a-z0-9_%-]+)/command$")
     self:_api_console_command(client, console_name, request)
 
+  elseif string.match(base_path, "^/api/console/([a-z0-9_%-]+)/watchables$") then
+    local console_name = string.match(base_path, "^/api/console/([a-z0-9_%-]+)/watchables$")
+    self: _api_console_watchables(client, console_name)
+
   elseif base_path == "/api/consoles" then
     self:_api_consoles_list(client)
 
@@ -569,6 +573,26 @@ function Server:_decode_json(str)
   end
 
   return nil
+end
+
+-----------------------------------------------------------
+-- WATCHABLES API
+-----------------------------------------------------------
+
+function Server:_api_console_watchables(client, console_name)
+  local console = self.consoles[console_name]
+
+  if not console then
+    self:_send_response(client, 404, "application/json", '{"error":"Console not found"}')
+    return
+  end
+
+  local watchables = console:get_watchables()
+  local json = self:_encode_json({
+    success = true,
+    groups = watchables
+  })
+  self:_send_response(client, 200, "application/json", json)
 end
 
 return Server
