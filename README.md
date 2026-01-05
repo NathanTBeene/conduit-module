@@ -57,9 +57,10 @@ function love.load()
     -- Log messages
     console:log("Game started!")
     console:success("Player loaded")
-    console:warn("Low memory")
-    console:error("Failed to load texture")
-    console:debug("FPS: 60")
+
+    -- Or use the alias for cleaner code
+    Conduit.gameplay:log("This works too!")
+    Conduit.gameplay:warn("Low Memory")
 
     print("Open http://localhost:8080 in your browser")
 end
@@ -156,6 +157,44 @@ local audio_console = Conduit:console("audio")
 game_console:log("Player spawned")
 network_console:log("Connected to server")
 audio_console:log("Music volume: 80%")
+```
+
+Each console is independent with its own logs, commands, and watchables.
+
+#### Console Aliases
+
+When you create a console, Conduit automatically creates an alias for easy access:
+
+```lua
+-- Create console
+Conduit:console("gameplay")
+
+-- Access via alias (no variable needed!)
+Conduit.gameplay:log("Using alias")
+Conduit.gameplay:success("Much cleaner!")
+
+-- Still works with variables if you prefer
+gameplay = Conduit:console("gameplay")
+gameplay:log("Using variable")
+```
+
+This is especially useful for global access across multiple files:
+
+```lua
+-- main.lua
+Conduit = require("conduit")
+Conduit:init()
+Conduit:console("gameplay")
+
+-- player.lua
+function Player:takeDamage()
+    Conduit.gameplay:warn("Player took damage!")  -- No need to pass console around
+end
+
+-- enemy.lua
+function Enemy:spawn()
+    Conduit.gameplay:log("Enemy spawned")  -- Same here!
+end
 ```
 
 Each console is independent with its own logs, commands, and watchables.
@@ -277,7 +316,7 @@ In the browser console:
 ### Multiple Consoles Example
 
 ```lua
-local Conduit = require("conduit")
+Conduit = require("conduit") -- Make it Global
 
 local game_console
 local network_console
@@ -303,14 +342,14 @@ function love.load()
         console:success("Enemy spawned!")
     end, "Spawn an enemy")
 
-    -- Setup network console
-    network_console:register_command("ping", function(console, args)
+    -- Setup network console using the alias
+    Conduit.network:register_command("ping", function(console, args)
         console:log("Pinging server...")
         console:success("Pong!  42ms")
     end, "Ping the server")
 
-    network_console:watch("Ping", function() return network. ping ..  "ms" end)
-    network_console:watch("Connected", function() return network.connected and "Yes" or "No" end)
+    Conduit.network:watch("Ping", function() return network. ping ..  "ms" end)
+    Conduit.network:watch("Connected", function() return network.connected and "Yes" or "No" end)
 end
 
 function love.update(dt)
@@ -321,8 +360,9 @@ function love.update(dt)
         game_console:warn("Player took damage!")
     end
 
+    -- Or log with alias
     if network_error then
-        network_console:error("Connection lost!")
+        Conduit.network:error("Connection lost!")
     end
 end
 ```
@@ -340,6 +380,21 @@ end
 | `Conduit:shutdown()` | Clean shutdown |
 | `Conduit:console(name)` | Create or get a console |
 | `Conduit:register_global_command(name, callback, desc)` | Register command on all consoles |
+
+### Console Access
+
+After creating a console with `Conduit:console("name")`, you can access it two ways:
+
+```lua
+-- Method 1: Store in variable
+local console = Conduit:console("gameplay")
+console:log("Hello")
+
+-- Method 2: Use alias (recommended for global access)
+Conduit:console("gameplay")
+Conduit.gameplay:log("Hello")
+```
+
 
 ### Console Object
 
@@ -438,6 +493,8 @@ Conduit:init({ port = 8081 })
    ```
 
 4. **Use multiple consoles** - Separate concerns for easier filtering
+
+5. **Use aliases for cleaner code** - `Conduit.gameplay:log()` is more readable than passing console objects around
 
 ---
 

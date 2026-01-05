@@ -113,8 +113,10 @@ function Conduit:console(name)
   end
 
   consoles[name] = console
-  print(string.format("[Conduit] Created new console '%s'.", name))
+  -- Create Alias: Conduit.<name> = console
+  Conduit[name] = console
 
+  print(string.format("[Conduit] Created new console '%s'.", name))
   return console
 end
 
