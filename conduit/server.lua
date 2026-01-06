@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-doc-name
 --- Conduit - Server Module
 --- A server for handling HTTP connections and API requests
 --- @class Server
