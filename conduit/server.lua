@@ -89,8 +89,24 @@ end
 
 --- Accept new incoming connections
 function Server:_accept_connections()
-  local client, err = self.tcp:accept()
+  -- Check if socket is valid
+  if not self.tcp then
+    return
+  end
 
+  local success, client_or_err = pcall(function()
+    return self.tcp:accept()
+  end)
+
+  if not success then
+    -- Socket is broken, reinitialize
+    print("[Conduit Server] Error accepting connection:", client_or_err)
+    print("[Conduit Server] Restarting server...")
+    self:stop()
+    self:start()
+  end
+
+  local client = client_or_err
   if client then
     client:settimeout(0)  -- Non-blocking
 
@@ -119,9 +135,16 @@ function Server:_process_connections()
 
     while continue_reading and reads_this_frame < 10 do
       reads_this_frame = reads_this_frame + 1
-      local data, err, partial = client_data.socket:receive(1024)
 
-      if data then
+      local success, data, err, partial = pcall(function()
+        return client_data.socket:receive(1024)
+      end)
+
+      if not success then
+        -- Socket operation failed
+        remove_client = true
+        continue_reading = false
+      elseif data then
         client_data.buffer = client_data.buffer .. data
       elseif partial and #partial > 0 then
         client_data.buffer = client_data.buffer .. partial
