@@ -70,6 +70,7 @@ function Conduit:shutdown()
     server:stop()
   end
   is_initialized = false
+  consoles = {}
   print("[Conduit] Shutdown complete")
 end
 
