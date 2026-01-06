@@ -32,6 +32,20 @@ A real-time debug console for LÖVE2D games that runs in your web browser.
 local Conduit = require("conduit")
 ```
 
+> [!IMPORTANT]
+> **If you place conduit in a subfolder** (like `modules/conduit/`), you need to tell Lua where to find it.
+>
+> Add this line at the top of your `main.lua` before requiring conduit:
+>
+> ```lua
+> -- If conduit is in modules/conduit/
+> package.path = package.path .. ";modules/?.lua;modules/?/init.lua"
+>
+> local Conduit = require("conduit")
+> ```
+>
+> **Why?** Lua doesn't automatically search subfolders. This adds your `modules/` folder to Lua's search path so it can find conduit and all its internal files.
+
 ---
 
 ## Quick Start
@@ -75,20 +89,6 @@ function love.quit()
     Conduit:shutdown()
 end
 ```
-
-> [!IMPORTANT]
-> **If you place conduit in a subfolder** (like `modules/conduit/`), you need to tell Lua where to find it.
->
-> Add this line at the top of your `main.lua` before requiring conduit:
->
-> ```lua
-> -- If conduit is in modules/conduit/
-> package.path = package.path .. ";modules/?.lua;modules/?/init.lua"
->
-> local Conduit = require("conduit")
-> ```
->
-> **Why?** Lua doesn't automatically search subfolders. This adds your `modules/` folder to Lua's search path so it can find conduit and all its internal files.
 
 ### Open Your Browser
 
