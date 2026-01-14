@@ -55,28 +55,31 @@ local Conduit = require("conduit")
 ```lua
 local Conduit = require("conduit")
 
+  -- Initialize Conduit outside your love.load
+  -- Or in a separate file like 'network' or 'consoles'
+  Conduit:init({
+      port = 8080,
+      timestamps = true,
+      max_logs = 1000,
+      max_watchables = 100,
+      refresh_interval = 200  -- ms between updates
+  })
+
+  -- Create a console
+  console = Conduit:console("gameplay")
+
+  -- Log messages
+  console:log("Game started!")
+  console:success("Player loaded")
+
+  -- Or use the alias for cleaner code
+  Conduit.gameplay:log("This works too!")
+  Conduit.gameplay:warn("Low Memory")
+
+  print("Open http://localhost:8080 in your browser")
+
+
 function love.load()
-    -- Initialize Conduit
-    Conduit:init({
-        port = 8080,
-        timestamps = true,
-        max_logs = 1000,
-        max_watchables = 100,
-        refresh_interval = 200  -- ms between updates
-    })
-
-    -- Create a console
-    console = Conduit:console("gameplay")
-
-    -- Log messages
-    console:log("Game started!")
-    console:success("Player loaded")
-
-    -- Or use the alias for cleaner code
-    Conduit.gameplay:log("This works too!")
-    Conduit.gameplay:warn("Low Memory")
-
-    print("Open http://localhost:8080 in your browser")
 end
 
 function love.update(dt)
