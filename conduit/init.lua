@@ -48,7 +48,7 @@ function Conduit:init(options)
   Conduit:_define_global_commands()
 
   -- Start the HTTP server
-  local Server = require("conduit.server")
+  local Server = require("server")
   server = Server:new(config, consoles)
   server:start()
 
@@ -101,7 +101,7 @@ function Conduit:console(name)
   end
 
   -- Create new console
-  local Console = require("conduit.console")
+  local Console = require("console")
   local console = Console:new(name, config)
 
   -- Copy all global commands into this console

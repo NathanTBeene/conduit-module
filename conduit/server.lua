@@ -255,7 +255,7 @@ function Server:_handle_request(client, request)
 
   elseif string.match(base_path, "^/api/console/([a-z0-9_%-]+)/watchables$") then
     local console_name = string.match(base_path, "^/api/console/([a-z0-9_%-]+)/watchables$")
-    self: _api_console_watchables(client, console_name)
+    self:_api_console_watchables(client, console_name)
 
   elseif base_path == "/api/consoles" then
     self:_api_consoles_list(client)
@@ -304,7 +304,7 @@ end
 
 --- Serve the index page (list of consoles)
 function Server:_serve_index(client)
-  local Templates = require("conduit.templates")
+  local Templates = require("templates")
   local html = Templates.render_index(self.consoles, self.config)
   self:_send_response(client, 200, "text/html", html)
 end
@@ -318,7 +318,7 @@ function Server:_serve_console(client, console_name)
     return
   end
 
-  local Templates = require("conduit.templates")
+  local Templates = require("templates")
   local html = Templates.render_console(console, self.config)
   self:_send_response(client, 200, "text/html", html)
 end
@@ -336,7 +336,7 @@ function Server:_api_console_buffer(client, console_name)
     return
   end
 
-  local Templates = require("conduit.templates")
+  local Templates = require("templates")
   local html = Templates.render_logs_buffer(console)
   self:_send_response(client, 200, "text/html", html)
 end
