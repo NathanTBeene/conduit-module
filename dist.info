@@ -7,6 +7,6 @@ author = "aten.dev"
 liscense = "MIT"
 
 depends = {
-  "lua ~> 5.2",
+  "lua ~> 5.1",
   "love ~> 11.0"
 }
