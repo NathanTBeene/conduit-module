@@ -34,7 +34,7 @@ Conduit = require("conduit")
 
 ## Quick Start
 
-### Basic Setup
+### Setup Example
 
 ```lua
 Conduit = require("conduit")
@@ -292,64 +292,6 @@ In the browser console:
 - **Search box** - Filter logs by text content
 - **Dropdown** - Filter by log level (all, info, success, warning, error, debug)
 - **Clear button** - Clear all logs
-
----
-
-## Advanced Usage
-
-### Multiple Consoles Example
-
-```lua
-Conduit = require("conduit") -- Make it Global
-
-local game_console
-local network_console
-local audio_console
-
-function love.load()
-    Conduit:init()
-
-    -- Create consoles
-    game_console = Conduit:console("gameplay")
-    network_console = Conduit:console("network")
-    audio_console = Conduit:console("audio")
-
-    -- Setup gameplay console
-    game_console:group("System", 1)
-    game_console:group("Player", 2)
-
-    game_console:watch("FPS", function() return love.timer.getFPS() end, "System", 1)
-    game_console:watch("Health", function() return player.health end, "Player", 1)
-
-    game_console:register_command("spawn", function(console, args)
-        spawnEnemy()
-        console:success("Enemy spawned!")
-    end, "Spawn an enemy")
-
-    -- Setup network console using the alias
-    Conduit.network:register_command("ping", function(console, args)
-        console:log("Pinging server...")
-        console:success("Pong!  42ms")
-    end, "Ping the server")
-
-    Conduit.network:watch("Ping", function() return network. ping ..  "ms" end)
-    Conduit.network:watch("Connected", function() return network.connected and "Yes" or "No" end)
-end
-
-function love.update(dt)
-    Conduit:update()
-
-    -- Log events
-    if player_damaged then
-        game_console:warn("Player took damage!")
-    end
-
-    -- Or log with alias
-    if network_error then
-        Conduit.network:error("Connection lost!")
-    end
-end
-```
 
 ---
 
