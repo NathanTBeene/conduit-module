@@ -1,0 +1,23 @@
+Conduit Changelog
+==================
+
+Version 1.2.0 (2026-01-15) - aten.dev
+  + Added squish and squishy for condensing conduit to a single file
+  + Added build release scripts for running squish and replacing requires
+  + Added test folder with main.lua for testing features and example scripts
+  * Updated .gitignore and squishy file for release building
+  * Updated require paths (reformatted for release builds)
+  * Updated README
+
+Version 1.1.0 (2026-01-06) - aten.dev
+  + Added alias system for accessing consoles via dot notation from the main conduit object
+  - Fixed socket bug where it would allow multiple network connections
+  - Fixed consoles not properly clearing after shutdown
+  - Fixed diagnostic issues with extensions that do not understand Love2D's server implementation
+  * Updated README with subfolder information
+
+Version 1.0.0 (2025-12-24) - aten.dev
+  + Initial public release
+  + Added MIT License
+  + Added documentation
+  * Core implementation complete
