@@ -22,29 +22,13 @@ A real-time debug console for LÖVE2D games that runs in your web browser.
 
 ## 📦 Installation
 
-### Option 1: Copy Files
-
-1. Download the latest [release](https://github.com/NathanTBeene/conduit-module/releases).
-2. Copy the `conduit/` folder into your LÖVE project
+1. Download the latest [release](https://github.com/NathanTBeene/conduit-module/releases)
+2. Copy `conduit.lua` into your LÖVE project
 3. Require it in your `main.lua`:
 
 ```lua
-local Conduit = require("conduit")
+Conduit = require("conduit")
 ```
-
-> [!IMPORTANT]
-> **If you place conduit in a subfolder** (like `modules/conduit/`), you need to tell Lua where to find it.
->
-> Add this line at the top of your `main.lua` before requiring conduit:
->
-> ```lua
-> -- If conduit is in modules/conduit/
-> package.path = package.path .. ";modules/?.lua;modules/?/init.lua"
->
-> local Conduit = require("conduit")
-> ```
->
-> **Why?** Lua doesn't automatically search subfolders. This adds your `modules/` folder to Lua's search path so it can find conduit and all its internal files.
 
 ---
 
@@ -53,43 +37,40 @@ local Conduit = require("conduit")
 ### Basic Setup
 
 ```lua
-local Conduit = require("conduit")
+Conduit = require("conduit")
 
-  -- Initialize Conduit outside your love.load
-  -- Or in a separate file like 'network' or 'consoles'
-  Conduit:init({
-      port = 8080,
-      timestamps = true,
-      max_logs = 1000,
-      max_watchables = 100,
-      refresh_interval = 200  -- ms between updates
-  })
+Conduit:init() -- Initialize the Conduit framework
 
-  -- Create a console
-  console = Conduit:console("gameplay")
+-- Setup System Console
+Conduit:console("system")
+Conduit.system:success("[Conduit] System console initialized.")
+Conduit.system:group("Stats", 1)
+Conduit.system:watch("FPS", function() return love.timer.getFPS() end, "Stats", 1)
+Conduit.system:watch("Memory Usage", function()
+    local mem = collectgarbage("count")
+    if mem < 1024 then
+        return string.format("%.0f KB", mem)
+    else
+        return string.format("%.0f MB", mem / 1024)
+    end
+end, "Stats", 2)
 
-  -- Log messages
-  console:log("Game started!")
-  console:success("Player loaded")
-
-  -- Or use the alias for cleaner code
-  Conduit.gameplay:log("This works too!")
-  Conduit.gameplay:warn("Low Memory")
-
-  print("Open http://localhost:8080 in your browser")
-
+-- Setup Gameplay Console
+Conduit:console("gameplay")
+Conduit.gameplay:success("[Conduit] Gameplay console initialized.")
+Conduit.gameplay:group("Player", 1)
+Conduit.gameplay:watch("Health", function() return player.health end, "Player", 1)
 
 function love.load()
+    player = { health = 100 }
 end
 
 function love.update(dt)
-    -- Update Conduit every frame
-    Conduit:update()
+    Conduit:update() -- Update the Conduit framework
 end
 
 function love.quit()
-    -- Clean shutdown
-    Conduit:shutdown()
+    Conduit:shutdown() -- Shutdown the Conduit framework
 end
 ```
 
