@@ -6,13 +6,3 @@ Module "templates" "conduit/templates.lua"
 
 -- Main Script
 Main "conduit/init.lua"
-
---Output Directory
--- Output "dist/conduit.lua"
--- Output "dist/conduit.min.lua"
--- Output "dist/conduit.uglify.lua"
-Output "dist/conduit.both.lua"
-
--- Build Options
-Option "minify"
-Option "uglify"

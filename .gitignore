@@ -1,6 +1,5 @@
-/dist
+**/dist
 .vscode/
 node_modules/
 .env
 .DS_Store
-main.lua
