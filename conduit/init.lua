@@ -30,7 +30,7 @@ local global_command_templates = {}
 
 --- Initialize Conduit
 --- Call this once at the start of your game
---- @param options table Optional: {port = 8080, timestamps = true, max_logs = 1000}
+--- @param options? table Optional: {port = 8080, timestamps = true, max_logs = 1000}
 function Conduit:init(options)
   if is_initialized then
     print("[Conduit] Already initialized")
@@ -48,7 +48,7 @@ function Conduit:init(options)
   Conduit:_define_global_commands()
 
   -- Start the HTTP server
-  local Server = require("server")
+  local Server = require("conduit.server")
   server = Server:new(config, consoles)
   server:start()
 
@@ -101,7 +101,7 @@ function Conduit:console(name)
   end
 
   -- Create new console
-  local Console = require("console")
+  local Console = require("conduit.console")
   local console = Console:new(name, config)
 
   -- Copy all global commands into this console

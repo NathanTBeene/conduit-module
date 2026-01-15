@@ -139,13 +139,17 @@ local SHARED_CSS = [[
 
     .log-message {
         flex: 1;
-        word-break: break-word;
-        white-space: pre-wrap;
+        display: flex;
     }
 
     .log-timestamp {
         color: #8b949e;
         margin-right: 8px;
+    }
+
+    .message-text {
+        flex: 1;
+        color: inherit;
     }
 
     /* Command Input */
@@ -825,7 +829,12 @@ function Templates.render_logs_buffer(console)
     local entry = string.format([[
       <div class="log-entry" style="color: %s;" data-type="%s">
         <span class="log-icon">%s</span>
-        <span class="log-message">%s%s</span>
+        <span class="log-message">
+          %s
+          <span class="message-text">
+            %s
+          </span>
+        </span>
       </div>
     ]], log.color, log.level or "custom", log.icon, timestamp_html, message)
 

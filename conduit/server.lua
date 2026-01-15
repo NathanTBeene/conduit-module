@@ -304,7 +304,7 @@ end
 
 --- Serve the index page (list of consoles)
 function Server:_serve_index(client)
-  local Templates = require("templates")
+  local Templates = require("conduit.templates")
   local html = Templates.render_index(self.consoles, self.config)
   self:_send_response(client, 200, "text/html", html)
 end
@@ -318,7 +318,7 @@ function Server:_serve_console(client, console_name)
     return
   end
 
-  local Templates = require("templates")
+  local Templates = require("conduit.templates")
   local html = Templates.render_console(console, self.config)
   self:_send_response(client, 200, "text/html", html)
 end
@@ -336,7 +336,7 @@ function Server:_api_console_buffer(client, console_name)
     return
   end
 
-  local Templates = require("templates")
+  local Templates = require("conduit.templates")
   local html = Templates.render_logs_buffer(console)
   self:_send_response(client, 200, "text/html", html)
 end
