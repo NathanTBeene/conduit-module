@@ -121,6 +121,14 @@ function Conduit:console(name)
   return console
 end
 
+--- Clear all consoles' logs
+function Conduit:clear_consoles()
+  for _, console in pairs(consoles) do
+    console:clear()
+  end
+  print("[Conduit] All consoles cleared")
+end
+
 -----------------------------------------------------------
 -- GLOBAL COMMANDS
 -----------------------------------------------------------
