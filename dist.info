@@ -1,0 +1,12 @@
+-- Version Information for Conduit Module
+
+name = "Conduit"
+version = "1.2.0"
+
+author = "aten.dev"
+liscense = "MIT"
+
+depends = {
+  "lua ~> 5.2",
+  "love ~> 11.0"
+}
