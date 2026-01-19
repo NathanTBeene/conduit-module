@@ -350,9 +350,10 @@ local SHARED_CSS = [[
         margin-bottom: 0;
     }
 
-    . watchable-name {
+    .watchable-name {
         color: #8b949e;
         flex:  1;
+        align-self:  baseline;
     }
 
     .watchable-value {
@@ -360,6 +361,7 @@ local SHARED_CSS = [[
         font-weight:  600;
         text-align: right;
         margin-left: 12px;
+        white-space: pre-wrap;
     }
 </style>
 ]]

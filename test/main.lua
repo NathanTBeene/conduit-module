@@ -24,7 +24,10 @@ Conduit.system:watch("Memory Usage", function()
   end
 
   return rep
-end, "Stats", 2) -- Watch Memory under Stats grou
+end, "Stats", 2) -- Watch Memory under Stats group
+Conduit.system:watch("Multi-line Test", function()
+  return "This is line 1.\nThis is line 2.\nThis is line 3."
+end, "Stats", 3) -- Watch Multi-line text under Stats group
 
 -- Setup Gameplay Console
 Conduit:console("gameplay")
