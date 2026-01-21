@@ -1,5 +1,10 @@
 Conduit Changelog
 ==================
+Version 1.2.1 (2026-01-21) - aten.dev
+  + Added screenshots for external showcasing
+  + Added `Conduit:clear_consoles()` command to clear all consoles.
+  - Fixed bug with html not escaping special characters
+  - Fixed bug where multi-line logs weren't wrapping properly with newline `\n`
 
 Version 1.2.0 (2026-01-15) - aten.dev
   + Added squish and squishy for condensing conduit to a single file
