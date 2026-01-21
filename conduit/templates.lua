@@ -801,6 +801,17 @@ function Templates.render_console(console, config)
   ]], console.name, SHARED_CSS, console.name, logs_html, console.total_logs, js)
 end
 
+--- Escapes HTML special characters to prevent XSS and display issues
+--- @param str string The string to escape
+--- @return string The escaped string
+local function escape_html(str)
+  return str:gsub("&", "&amp;")
+  :gsub("<", "&lt;")
+  :gsub(">", "&gt;")
+  :gsub('"', "&quot;")
+  :gsub("'", "&#39;")
+end
+
 --- Renders the logs buffer for a console
 --- @param console Console The console instance
 --- @return string The rendered HTML for the logs buffer
@@ -825,8 +836,8 @@ function Templates.render_logs_buffer(console)
       timestamp_html = string.format('<span class="log-timestamp">[%s]</span> ', log.timestamp)
     end
 
-    -- Convert newlines into <br> for HTML display
-    local message = log.message:gsub("\n", "<br>")
+    -- Escape HTML entities first, then convert newlines to <br>
+    local message = escape_html(log.message):gsub("\n", "<br>")
 
     local entry = string.format([[
       <div class="log-entry" style="color: %s;" data-type="%s">
